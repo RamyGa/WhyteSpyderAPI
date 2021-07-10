@@ -11,12 +11,10 @@ import org.springframework.web.bind.annotation.*;
 public class StoreController {
 
     private final StoreService storeService;
-    private final CSVLoader csvLoader;
 
     @Autowired
-    public StoreController(StoreService storeService, CSVLoader csvLoader) {
+    public StoreController(StoreService storeService) {
         this.storeService = storeService;
-        this.csvLoader = csvLoader;
     }
 
 
