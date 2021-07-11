@@ -18,10 +18,10 @@ public class StoreController {
     }
 
 
-    @GetMapping(produces = "application/json")
-    public ResponseEntity getAllStores(){
-        return ResponseEntity.ok(storeService.getAllStores());
-    }
+//    @GetMapping(produces = "application/json")
+//    public ResponseEntity getAllStores(){
+//        return ResponseEntity.ok(storeService.getAllStores());
+//    }
 
     @GetMapping(path = "/store_number/{store}",produces = "application/json")
     public ResponseEntity getByStoreNumber(@PathVariable int store){
