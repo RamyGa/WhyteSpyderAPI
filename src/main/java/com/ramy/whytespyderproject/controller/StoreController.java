@@ -17,9 +17,14 @@ public class StoreController {
         this.storeService = storeService;
     }
 
+    @GetMapping(path = "/")
+    public String getAllStores(){
 
+        return "Hello world";
+    }
 //    @GetMapping(produces = "application/json")
 //    public ResponseEntity getAllStores(){
+//
 //        return ResponseEntity.ok(storeService.getAllStores());
 //    }
 
