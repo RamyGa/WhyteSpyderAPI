@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@RequestMapping("/api")
 public class StoreController {
 
     private final StoreService storeService;
@@ -17,16 +18,12 @@ public class StoreController {
         this.storeService = storeService;
     }
 
-    @GetMapping(path = "/")
-    public String getAllStores(){
 
-        return "Hello world";
+    @GetMapping(produces = "application/json")
+    public ResponseEntity getAllStores(){
+
+        return ResponseEntity.ok(storeService.getAllStores());
     }
-//    @GetMapping(produces = "application/json")
-//    public ResponseEntity getAllStores(){
-//
-//        return ResponseEntity.ok(storeService.getAllStores());
-//    }
 
     @GetMapping(path = "/store_number/{store}",produces = "application/json")
     public ResponseEntity getByStoreNumber(@PathVariable int store){
