@@ -5,6 +5,7 @@ import com.ramy.whytespyderproject.dto.StoreDTO;
 import com.ramy.whytespyderproject.entity.StoreEntity;
 import com.ramy.whytespyderproject.loadData.CSVLoader;
 import com.ramy.whytespyderproject.repository.StoreRepo;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -14,10 +15,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +33,14 @@ public class StoreService {
         this.csvLoader = csvLoader;
     }
     @EventListener(ApplicationReadyEvent.class)//will initially run when the app boots up
-    public void uploadFile() throws URISyntaxException, IOException {//will upload the csv file data to H2
+    public ResponseEntity uploadFile() throws IOException {//will upload the csv file data to H2
 
-        File file = new File(WhyteSpyderProjectApplication.class.getResource("/ogp_stores.csv").toURI());//pointing to local csv file
+
+        File file = new File("ogp_stores.csv");//pointing src csv file
+        InputStream in = WhyteSpyderProjectApplication.class.getResourceAsStream("/ogp_stores.csv");//pointing to resource
+        OutputStream outputStream = new FileOutputStream(file);//so it can read csv file while file is inside jar
+        IOUtils.copy(in, outputStream);//Copies bytes from an InputStream to an OutputStream. //output stream will be csv file
+
         FileInputStream inputStream = new FileInputStream(file);//reads file data
         MultipartFile DATA_FILE = new MockMultipartFile(file.getName(), file.getName(), "text/csv", inputStream);//conversion from File to MultipartFile
         String message = "";
@@ -45,16 +48,17 @@ public class StoreService {
             try {
                 save(DATA_FILE);//..save the file data to H2
                 message = "Uploaded the file successfully: " + DATA_FILE.getOriginalFilename();
-                System.out.println(ResponseEntity.status(HttpStatus.OK).body( "\" message \": \" "+ message +" \""));
+               return ResponseEntity.status(HttpStatus.OK).body( "\" message \": \" "+ message +" \"");
+
             } catch (Exception e) {
                 message = "Could not upload the file: " + DATA_FILE.getOriginalFilename() + "!";
-                System.out.println(ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("\" message \": \" "+ message +" \""));
+                return  ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("\" message \": \" "+ message +" \"");
 
             }
         }
         else {
             message = "Please upload a csv file!";
-            System.out.println(ResponseEntity.status(HttpStatus.BAD_REQUEST).body("\" message \": \" "+ message +" \""));
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("\" message \": \" "+ message +" \"");
         }
 
 
@@ -70,28 +74,10 @@ public class StoreService {
     }
 
     public List<StoreDTO> getAllStores() {
-        List<StoreEntity> storeEntities = repository.findAll();
-        List<StoreDTO> storeDTOS = new ArrayList<>();
-        for (StoreEntity storeEntity : storeEntities) {
-            StoreDTO storeDTO =
-                    new StoreDTO(
-                            storeEntity.getStore(),
-                            storeEntity.getCbsa(),
-                            storeEntity.getAddress(),
-                            storeEntity.getCity(),
-                            storeEntity.getState(),
-                            storeEntity.getZip(),
-                            storeEntity.getLat(),
-                            storeEntity.getLon(),
-                            storeEntity.getCcia(),
-                            storeEntity.getCapis(),
-                            storeEntity.getOgpMarketName(),
-                            storeEntity.getStatus()
-                            );
-            storeDTOS.add(storeDTO);
-        }
 
-        return storeDTOS;
+        return entityToDto(repository.findAll());
+
+
     }
 
 
@@ -115,9 +101,15 @@ public class StoreService {
 
     }
     public List<StoreDTO> getAllStoresByState(String state) {
-        List<StoreEntity> storeEntities = repository.findAllByState(state);
+
+        return entityToDto(repository.findAllByState(state));
+    }
+
+
+    public List<StoreDTO> entityToDto(List<StoreEntity> entities){
+
         List<StoreDTO> storeDTOS = new ArrayList<>();
-        for (StoreEntity storeEntity : storeEntities) {
+        for (StoreEntity storeEntity : entities) {
             StoreDTO storeDTO =
                     new StoreDTO(
                             storeEntity.getStore(),
@@ -135,7 +127,6 @@ public class StoreService {
                     );
             storeDTOS.add(storeDTO);
         }
-
         return storeDTOS;
     }
 }

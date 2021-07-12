@@ -1,10 +1,12 @@
 package com.ramy.whytespyderproject.controller;
 
-import com.ramy.whytespyderproject.loadData.CSVLoader;
+
 import com.ramy.whytespyderproject.service.StoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 
 @RestController
@@ -18,6 +20,11 @@ public class StoreController {
         this.storeService = storeService;
     }
 
+    @GetMapping(path = "/")
+    public ResponseEntity uploadDataToH2() throws IOException {
+
+        return storeService.uploadFile();
+    }
 
     @GetMapping(produces = "application/json")
     public ResponseEntity getAllStores(){
