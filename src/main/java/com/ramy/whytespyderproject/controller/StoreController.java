@@ -10,7 +10,6 @@ import java.io.IOException;
 
 
 @RestController
-@RequestMapping("/api")
 public class StoreController {
 
     private final StoreService storeService;
@@ -26,7 +25,7 @@ public class StoreController {
         return storeService.uploadFile();
     }
 
-    @GetMapping(produces = "application/json")
+    @GetMapping(path = "/get_all",produces = "application/json")
     public ResponseEntity getAllStores(){
 
         return ResponseEntity.ok(storeService.getAllStores());
